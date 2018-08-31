@@ -8,7 +8,6 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -25,6 +24,10 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
+import static com.yanleiz.waitbus.utils.Utils.ascii2native;
+import static com.yanleiz.waitbus.utils.Utils.sendHttpRequest;
+
 ////div[i[@class="buss"]]/@id
 public class MainActivity extends AppCompatActivity {
     final int SELECT_LIN = 11;
@@ -42,8 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private String[] text = null;
     ArrayList<String> directs;
     ArrayList<String> directs_code;
-    ArrayList<Element> stations;
-    ArrayList<Element> abstracts;
+    public static String response;
 
 
     @SuppressLint("HandlerLeak")
@@ -65,10 +67,10 @@ public class MainActivity extends AppCompatActivity {
 
                 sel_dir.setAdapter(adapter);
             } else if (msg.what == QUERY) {
-                Intent intent =new Intent(MainActivity.this,BusMap.class);
-                intent.putExtra("stations",stations);
-                intent.putExtra("abstracts",abstracts);
-                startActivityForResult(intent,1);
+                Intent intent = new Intent(MainActivity.this, BusMap.class);
+                //intent.putExtra("stations", "stations");
+                //intent.putExtra("abstracts", abstracts);
+                startActivityForResult(intent, 1);
             }
 
         }
@@ -159,35 +161,24 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (autocomText.getText() != null && sel_dir.getSelectedItem() != null) {
                     new Thread(new Runnable() {
-                        Document doc = null;
+                        //Document doc = null;
 
                         @Override
                         public void run() {
                             String lin = autocomText.getText().toString();
                             Directs direct = (Directs) sel_dir.getSelectedItem();
                             String dir = direct.getDir_code();
-                            //参数2暂时随便写的，是上车站点
-                            String url = URL3 + lin + URL3_EX1 + dir + URL3_EX2 + "2";
-                            try {
-                                doc = Jsoup.connect(url).get();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            Elements station_eles = doc.body().select("div ul li");
-                            Elements abstract_eles = doc.body().select("article p");
-                            if (station_eles != null && abstract_eles != null) {
-                                stations = new ArrayList<>();
-                                abstracts = new ArrayList<>();
 
-                                for (int i = 0; i < station_eles.size(); i++) {
-                                    Element a = station_eles.get(i);
-                                    stations.add(a);
-                                }
-                                for (int i = 0; i < abstract_eles.size(); i++) {
-                                    Element b = abstract_eles.get(i);
-                                    abstracts.add(b);
-                                }
+                            //TODO
+                            //参数2暂时随便写的，是上车站点（留做后期扩展）
+                            String url = URL3 + lin + URL3_EX1 + dir + URL3_EX2 + "2";
+                            //
+                            response = ascii2native(sendHttpRequest(url)).replace("\\","");
+                            if(response.trim()!="" &&response!=null){
                                 handler.sendEmptyMessage(QUERY);
+                            }else {
+                                Toast.makeText(getApplicationContext(), "发生错误！", Toast.LENGTH_LONG).show();
+
                             }
                         }
                     }).start();
@@ -197,4 +188,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 }
