@@ -14,6 +14,12 @@ public class Utils {
     public final static int SELECT_DIR = 22;
     public final static int QUERY = 33;
 
+    public final static String URL1 = "http://www.bjbus.com/home/index.php";
+    public final static String URL2 = "http://www.bjbus.com/home/ajax_rtbus_data.php?act=getLineDir&selBLine=";
+    public final static String URL3 = "http://www.bjbus.com/home/ajax_rtbus_data.php?act=busTime&selBLine=";
+    public final static String URL3_EX1 = "&selBDir=";
+    public final static String URL3_EX2 = "&selBStop=";
+
     public static ArrayList<Element> stations = new ArrayList<>();
     public static ArrayList<Element> abstracts = new ArrayList<>();
     /**

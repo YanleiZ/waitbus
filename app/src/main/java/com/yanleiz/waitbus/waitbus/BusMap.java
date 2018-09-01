@@ -1,8 +1,12 @@
 package com.yanleiz.waitbus.waitbus;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
+
+import com.yanleiz.waitbus.utils.GetData;
+import com.yanleiz.waitbus.utils.Utils;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -19,46 +23,28 @@ public class BusMap extends AppCompatActivity {
     private ArrayList<Element> stations;
     private ArrayList<Element> abstracts;
 
+    String lin;
+    private String dir;
+    String dirCode;
+    String otherDir;
+    String otherDirCode;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bus_map);
-        initDataAndView();
-        // Intent intent1 = getIntent();
-        //stations =MainActivity.stations;//= intent1.getStringArrayListExtra("stations");
-        //abstracts =MainActivity.abstracts;//= intent1.getStringArrayListExtra("abstracts");
-    }
-
-    private void initDataAndView() {
-        Element doc = Jsoup.parse(MainActivity.response);
-        Elements station_eles = doc.select("div").select("ul").select("li").select("div");
-        Elements abstract_eles = doc.select("article").select("p");
-        if (station_eles.size() > 0 && abstract_eles.size() > 0) {
-            stations = new ArrayList<>();
-            abstracts = new ArrayList<>();
-
-            for (int i = 0; i < station_eles.size(); i++) {
-                Element a = station_eles.get(i);
-                stations.add(a);
-            }
-            for (int i = 0; i < abstract_eles.size(); i++) {
-                Element b = abstract_eles.get(i);
-                abstracts.add(b);
-            }
-        }
+        //initDataAndView();
         TextView tv = findViewById(R.id.show);
-        busStationId = new ArrayList();
-        busStations = new ArrayList();
-        busLocation = new ArrayList();
-        String showStr = "";
-        Element b;
-        for (int i = 0; i < stations.size(); i++) {
-            b =  stations.get(i);
-            busStationId.add(b.select("div").attr("id").toString().replace("\\", "").replace("\"", ""));
-            busStations.add(b.select("div span").text().toString().replace("<\\/span><\\/div><\\/li>", ""));
-            busLocation.add(b.select("div i.busc").parents().attr("id").toString());
-            showStr += ascii2native(busStations.get(i).toString() + busLocation.get(i).toString() + "\n");
-        }
-        tv.setText(showStr);
+
+        Intent intent = getIntent();
+        lin = intent.getStringExtra("lin");
+        dir = intent.getStringExtra("dir");
+        dirCode = intent.getStringExtra("dirCode");
+        otherDir= intent.getStringExtra("otherDir");
+        otherDirCode = intent.getStringExtra("otherDirCode");
+
+        String url = Utils.URL3 + lin + Utils.URL3_EX1 + dir + Utils.URL3_EX2 + "2";
+        GetData getData = new GetData(tv,url);
+        getData.execute(url);
     }
 }

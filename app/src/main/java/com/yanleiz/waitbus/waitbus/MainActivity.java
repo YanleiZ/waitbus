@@ -16,6 +16,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.yanleiz.waitbus.beans.Directs;
+import com.yanleiz.waitbus.utils.Utils;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -30,15 +31,7 @@ import static com.yanleiz.waitbus.utils.Utils.sendHttpRequest;
 
 ////div[i[@class="buss"]]/@id
 public class MainActivity extends AppCompatActivity {
-    final int SELECT_LIN = 11;
-    final int SELECT_DIR = 22;
-    final int QUERY = 33;
 
-    final static String URL1 = "http://www.bjbus.com/home/index.php";
-    final static String URL2 = "http://www.bjbus.com/home/ajax_rtbus_data.php?act=getLineDir&selBLine=";
-    final static String URL3 = "http://www.bjbus.com/home/ajax_rtbus_data.php?act=busTime&selBLine=";
-    final static String URL3_EX1 = "&selBDir=";
-    final static String URL3_EX2 = "&selBStop=";
     private AutoCompleteTextView autocomText = null;
     private Spinner sel_dir = null;
     private Button query_button = null;
@@ -51,12 +44,12 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
-            if (msg.what == SELECT_LIN) {
+            if (msg.what == Utils.SELECT_LIN) {
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_dropdown_item_1line, text);
                 autocomText.setAdapter(adapter);
                 ////dd[@id="selBLine"]
                 //ArrayList<Node> list = (ArrayList<Node>) doc.selectNodes("//dd[@id='selBLine']");
-            } else if (msg.what == SELECT_DIR) {
+            } else if (msg.what == Utils.SELECT_DIR) {
 
                 ArrayList list = new ArrayList();
                 for (int i = 0; i < directs.size(); i++) {
@@ -66,12 +59,13 @@ public class MainActivity extends AppCompatActivity {
                         android.R.layout.simple_spinner_item, list);
 
                 sel_dir.setAdapter(adapter);
-            } else if (msg.what == QUERY) {
+            }
+            /*else if (msg.what == Utils.QUERY) {
                 Intent intent = new Intent(MainActivity.this, BusMap.class);
                 //intent.putExtra("stations", "stations");
                 //intent.putExtra("abstracts", abstracts);
                 startActivityForResult(intent, 1);
-            }
+            }*/
 
         }
     };
@@ -93,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    doc = Jsoup.connect(URL1).get();
+                    doc = Jsoup.connect(Utils.URL1).get();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -104,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 text = bus;
 
-                handler.sendEmptyMessage(SELECT_LIN);
+                handler.sendEmptyMessage(Utils.SELECT_LIN);
             }
         }).start();
     }
@@ -135,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
                         String buslin = autocomText.getText().toString();
                         try {
-                            doc = Jsoup.connect(URL2 + buslin).get();
+                            doc = Jsoup.connect(Utils.URL2 + buslin).get();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -150,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
                                 directs.add(a);
                                 directs_code.add(b);
                             }
-                            handler.sendEmptyMessage(SELECT_DIR);
+                            handler.sendEmptyMessage(Utils.SELECT_DIR);
                         }
                     }
                 }).start();
@@ -160,28 +154,52 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (autocomText.getText() != null && sel_dir.getSelectedItem() != null) {
-                    new Thread(new Runnable() {
-                        //Document doc = null;
-
-                        @Override
-                        public void run() {
+//                    new Thread(new Runnable() {
+//                        //Document doc = null;
+//
+//                        @Override
+//                        public void run() {
                             String lin = autocomText.getText().toString();
                             Directs direct = (Directs) sel_dir.getSelectedItem();
                             String dir = direct.getDir_code();
+                            String dirCode = direct.getDir();
 
                             //TODO
                             //参数2暂时随便写的，是上车站点（留做后期扩展）
-                            String url = URL3 + lin + URL3_EX1 + dir + URL3_EX2 + "2";
-                            //
-                            response = ascii2native(sendHttpRequest(url)).replace("\\","");
-                            if(response.trim()!="" &&response!=null){
-                                handler.sendEmptyMessage(QUERY);
-                            }else {
-                                Toast.makeText(getApplicationContext(), "发生错误！", Toast.LENGTH_LONG).show();
+                            //String url = Utils.URL3 + lin + Utils.URL3_EX1 + dir + Utils.URL3_EX2 + "2";
+                            Intent intent = new Intent(MainActivity.this, BusMap.class);
+                            //intent.putExtra("url", url);
+                            if (directs_code.size() >= 1 && directs.size() >= 1) {
+                                directs_code.remove(dirCode);
+                                directs.remove(dir);
 
+                                if(directs_code.size()==1||directs.size()==1) {
+                                    String otherDir = directs.get(0);
+                                    String otherDirCode = directs_code.get(0);
+                                    intent.putExtra("otherDir", otherDir);
+                                    intent.putExtra("otherDirCode", otherDirCode);
+                                }else{
+                                    intent.putExtra("otherDir", "0");
+                                    intent.putExtra("otherDirCode", "0");
+                                }
+                                intent.putExtra("lin", lin);
+                                intent.putExtra("dir", dir);
+                                intent.putExtra("dirCode", dirCode);
+
+                                startActivityForResult(intent, 1);
+                            }else {
+                                Toast.makeText(getApplicationContext(), "数据获取错误！", Toast.LENGTH_LONG).show();
                             }
-                        }
-                    }).start();
+                            //
+//                            response = ascii2native(sendHttpRequest(url)).replace("\\", "");
+//                            if (response.trim() != "" && response != null) {
+//                                handler.sendEmptyMessage(Utils.QUERY);
+//                            } else {
+//                                Toast.makeText(getApplicationContext(), "发生错误！", Toast.LENGTH_LONG).show();
+//
+//                            }
+//                        }
+//                    }).start();
                 } else {
                     Toast.makeText(getApplicationContext(), "请选择公交线路", Toast.LENGTH_LONG).show();
                 }
