@@ -1,12 +1,8 @@
 package com.yanleiz.waitbus.utils;
 
+import android.content.Context;
 import android.os.AsyncTask;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import com.yanleiz.waitbus.waitbus.BusMap;
-import com.yanleiz.waitbus.waitbus.MainActivity;
-import com.yanleiz.waitbus.waitbus.R;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -18,18 +14,18 @@ import static com.yanleiz.waitbus.utils.Utils.ascii2native;
 import static com.yanleiz.waitbus.utils.Utils.sendHttpRequest;
 
 public class GetData extends AsyncTask<String, String, String> {
+    private Context context;
     private String url;
-    private TextView txt;
+    //private DrawView dv;
 
-    private ArrayList busStationId;
-    private ArrayList busStations;
-    private ArrayList busLocation;
     private ArrayList<Element> stations;
     private ArrayList<Element> abstracts;
 
-    public GetData(TextView txt, String url) {
+    public GetData(Context context, String url) {
+        this.context = context;
         this.url = url;
-        this.txt = txt;
+       // this.dv = dv;
+
     }
 
     @Override
@@ -41,9 +37,12 @@ public class GetData extends AsyncTask<String, String, String> {
 
     @Override
     protected void onPostExecute(String s) {
-        //  super.onPostExecute(s);
-        if (s != "" && s != null) {
-
+        super.onPostExecute(s);
+        if (s == "" || s == null) {
+            Toast.makeText(context, "数据异常！", Toast.LENGTH_LONG).show();
+        } else if (s == "err") {
+            Toast.makeText(context, "数据异常！", Toast.LENGTH_LONG).show();
+        } else {
             Element doc = Jsoup.parse(s);
             Elements station_eles = doc.select("div").select("ul").select("li").select("div");
             Elements abstract_eles = doc.select("article").select("p");
@@ -60,12 +59,9 @@ public class GetData extends AsyncTask<String, String, String> {
                     abstracts.add(b);
                 }
             }
-            busStationId = new ArrayList();
-            busStations = new ArrayList();
-            busLocation = new ArrayList();
             String showStr = "";
             Element b;
-            for (int i = 0; i < stations.size(); i++) {
+          /*  for (int i = 0; i < stations.size(); i++) {
                 b = stations.get(i);
                 busStationId.add(b.select("div").attr("id").toString().replace("\\", "").replace("\"", ""));
                 busStations.add(b.select("div span").text().toString().replace("<\\/span><\\/div><\\/li>", ""));
@@ -79,9 +75,24 @@ public class GetData extends AsyncTask<String, String, String> {
 
                 } else {
                     showStr += ascii2native(busStations.get(i).toString() + busLocation.get(i).toString() + "\n");
+                }*/
+            Utils.busStationId.clear();
+            Utils.busStations.clear();
+            Utils.busLocation.clear();
+            for (int i = 0; i < stations.size(); i++) {
+                b = stations.get(i);
+                Utils.busStationId.add(b.select("div").attr("id").toString().replace("\\", "").replace("\"", ""));
+                Utils.busStations.add(b.select("div span").text().toString().replace("<\\/span><\\/div><\\/li>", ""));
+                if (i % 2 == 0) {
+                    Utils.busLocation.add(b.select("div i.buss").parents().attr("id").toString());
+                } else {
+                    Utils.busLocation.add(b.select("div i.busc").parents().attr("id").toString());
                 }
+                //showStr += ascii2native(busStations.get(i).toString() + "============" + busLocation.get(i).toString() + "\n");
+
             }
-            txt.setText(showStr);
+            //dv.setBusStations(busLocation);
+            //dv.setBusLocation(busLocation);
         }
     }
 }

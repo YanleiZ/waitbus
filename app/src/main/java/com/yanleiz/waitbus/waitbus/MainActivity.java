@@ -8,6 +8,7 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -16,6 +17,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.yanleiz.waitbus.beans.Directs;
+import com.yanleiz.waitbus.utils.GetData;
 import com.yanleiz.waitbus.utils.Utils;
 
 import org.jsoup.Jsoup;
@@ -153,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
         query_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (autocomText.getText() != null && sel_dir.getSelectedItem() != null) {
+                if (autocomText.getText().toString().trim() != "" && sel_dir.getSelectedItem() != null) {
 //                    new Thread(new Runnable() {
 //                        //Document doc = null;
 //
@@ -161,8 +163,8 @@ public class MainActivity extends AppCompatActivity {
 //                        public void run() {
                             String lin = autocomText.getText().toString();
                             Directs direct = (Directs) sel_dir.getSelectedItem();
-                            String dir = direct.getDir_code();
-                            String dirCode = direct.getDir();
+                            String dirCode = direct.getDir_code();
+                            String dir = direct.getDir();
 
                             //TODO
                             //参数2暂时随便写的，是上车站点（留做后期扩展）
@@ -179,14 +181,23 @@ public class MainActivity extends AppCompatActivity {
                                     intent.putExtra("otherDir", otherDir);
                                     intent.putExtra("otherDirCode", otherDirCode);
                                 }else{
-                                    intent.putExtra("otherDir", "0");
-                                    intent.putExtra("otherDirCode", "0");
+                                    String otherDir = "0";
+                                    String otherDirCode = "0";
+                                    intent.putExtra("otherDir", otherDir);
+                                    intent.putExtra("otherDirCode", otherDirCode);
                                 }
+
+                                String url = Utils.URL3 + lin + Utils.URL3_EX1 + dirCode + Utils.URL3_EX2 + "2";
+                                GetData getData = new GetData(MainActivity.this,url);
+                                getData.execute();
+
                                 intent.putExtra("lin", lin);
                                 intent.putExtra("dir", dir);
                                 intent.putExtra("dirCode", dirCode);
 
                                 startActivityForResult(intent, 1);
+
+
                             }else {
                                 Toast.makeText(getApplicationContext(), "数据获取错误！", Toast.LENGTH_LONG).show();
                             }

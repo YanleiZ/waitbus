@@ -6,13 +6,36 @@
     android:layout_height="match_parent"
     tools:context=".BusMap">
 
+    <!-- <ScrollView
+         android:id="@+id/ccrollView"
+         android:layout_width="match_parent"
+         android:layout_height="match_parent">
+
+         <TextView
+             android:id="@+id/show"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent" />
+     </ScrollView>-->
+
+
     <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <TextView
-            android:id="@+id/show"
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+
+            <com.yanleiz.waitbus.utils.DrawView
+                android:id="@+id/drawView"
+                android:layout_width="match_parent"
+                android:layout_height="2000dp" />
+
+        </LinearLayout>
     </ScrollView>
+
 
 </android.support.constraint.ConstraintLayout>
