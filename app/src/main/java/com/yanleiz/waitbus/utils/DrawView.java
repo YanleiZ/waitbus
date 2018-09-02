@@ -15,6 +15,7 @@ public class DrawView extends View {
     private Paint sPaint2;
     private Paint fPaint;
     private Paint redPaint;
+    private Paint blackPaint;
 
     public DrawView(Context context) {
         super(context);
@@ -37,6 +38,7 @@ public class DrawView extends View {
         sPaint2 = new Paint();
         fPaint = new Paint();
         redPaint = new Paint();
+        blackPaint = new Paint();
 
         sPaint.setAntiAlias(true);          //抗锯齿
         sPaint2.setAntiAlias(true);          //抗锯齿
@@ -47,6 +49,7 @@ public class DrawView extends View {
         sPaint2.setColor(Color.GREEN);//画笔颜色
         fPaint.setColor(Color.GREEN);//画笔颜色
         redPaint.setColor(Color.RED);//画笔颜色
+        blackPaint.setColor(Color.BLACK);//画笔颜色
 
         sPaint.setStyle(Paint.Style.STROKE);  //画笔风格STROKE
         sPaint2.setStyle(Paint.Style.STROKE);  //画笔风格STROKE
@@ -57,11 +60,14 @@ public class DrawView extends View {
         sPaint2.setTextSize(36);             //绘制文字大小，单位px
         fPaint.setTextSize(40);             //绘制文字大小，单位px
         redPaint.setTextSize(40);             //绘制文字大小，单位px
+        blackPaint.setTextSize(45);             //绘制文字大小，单位px
 
         sPaint.setStrokeWidth(8);           //画笔粗细
         sPaint2.setStrokeWidth(2);           //画笔粗细
         fPaint.setStrokeWidth(4);           //画笔粗细
         redPaint.setStrokeWidth(4);           //画笔粗细
+        blackPaint.setStrokeWidth(6);           //画笔粗细
+
 
     }
 
@@ -70,6 +76,12 @@ public class DrawView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         int center = getWidth() / 10;
+        int texty = 60;
+        for (int i = 0; i < Utils.busAbstracts.size(); i++) {
+            canvas.drawText(Utils.busAbstracts.get(i).toString(), 0, texty, blackPaint);
+            texty += 60;
+        }
+        canvas.drawLine(0, texty-10, getWidth(), texty-10, blackPaint);
 
         //int innerCircle = dip2px(getContext(), 20); //设置内圆半径
         //int ringWidth = dip2px(getContext(), 5); //设置圆环宽度
@@ -88,9 +100,10 @@ public class DrawView extends View {
 //        canvas.drawCircle(0,0, 20, sPaint2);
 //        canvas.drawCircle(0,0, 10, fPaint);
             if (i % 2 == 1) {
+                center1 += center;
                 if (Utils.busLocation.get(i - 1).toString().trim() != "") {
-                    canvas.drawCircle(center, center1, 30, redPaint);
-                    canvas.drawCircle(center, center1, 18, fPaint);
+                    canvas.drawCircle(center, center1, 30, sPaint);
+                    canvas.drawCircle(center, center1, 20, redPaint);
                     canvas.drawLine(center + 34, center1 + 27, center * 4, center1 + 27, sPaint2);
                     canvas.drawText(Utils.busStations.get(i - 1).toString(), center * 4 + 4, center1 + 25, fPaint);
                 } else {
@@ -100,16 +113,15 @@ public class DrawView extends View {
                     canvas.drawText(Utils.busStations.get(i - 1).toString(), center * 4 + 4, center1 + 25, fPaint);
                 }
 
-                center1 += center;
 
                 //mPaint.setARGB(100, 0, 0, 0);
                 //mPaint.setStrokeWidth(2);
                 //canvas.drawCircle(center,center, innerCircle+ringWidth, mPaint);
             } else {
                 if (Utils.busLocation.get(i - 1).toString().trim() != "") {
-                    canvas.drawLine(center, center1 - center + 30, center, center1 - 30, redPaint);
+                    canvas.drawLine(center, center1 + 30, center, center1 + center - 30, redPaint);
                 } else {
-                    canvas.drawLine(center, center1 - center + 30, center, center1 - 30, sPaint2);
+                    canvas.drawLine(center, center1 + 30, center, center1 + center - 30, sPaint2);
                 }
             }
 
@@ -120,7 +132,8 @@ public class DrawView extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        setMeasuredDimension(getMeasuredWidth(), getMeasuredHeight());
+        int len = getMeasuredWidth() / 10;
+        setMeasuredDimension(getMeasuredWidth(), len * Utils.busStations.size() / 2 + 3 * len);
 
     }
 
@@ -132,5 +145,8 @@ public class DrawView extends View {
         return (int) (dpValue * scale + 0.5f);
     }
 
-
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+    }
 }

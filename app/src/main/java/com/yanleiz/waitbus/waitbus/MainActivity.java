@@ -8,7 +8,6 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -17,7 +16,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.yanleiz.waitbus.beans.Directs;
-import com.yanleiz.waitbus.utils.GetData;
 import com.yanleiz.waitbus.utils.Utils;
 
 import org.jsoup.Jsoup;
@@ -33,6 +31,14 @@ import static com.yanleiz.waitbus.utils.Utils.sendHttpRequest;
 
 ////div[i[@class="buss"]]/@id
 public class MainActivity extends AppCompatActivity {
+
+    String lin;
+    Directs direct;
+    String dirCode;
+    String dir;
+    String url;
+
+    private ArrayList<Element> stations;
 
     private AutoCompleteTextView autocomText = null;
     private Spinner sel_dir = null;
@@ -61,13 +67,40 @@ public class MainActivity extends AppCompatActivity {
                         android.R.layout.simple_spinner_item, list);
 
                 sel_dir.setAdapter(adapter);
-            }
-            /*else if (msg.what == Utils.QUERY) {
+            } else if (msg.what == Utils.QUERY) {
                 Intent intent = new Intent(MainActivity.this, BusMap.class);
-                //intent.putExtra("stations", "stations");
-                //intent.putExtra("abstracts", abstracts);
-                startActivityForResult(intent, 1);
-            }*/
+                //intent.putExtra("url", url);
+                if (directs_code.size() >= 1 && directs.size() >= 1) {
+                    directs_code.remove(dirCode);
+                    directs.remove(dir);
+
+                    if (directs_code.size() == 1 || directs.size() == 1) {
+                        String otherDir = directs.get(0);
+                        String otherDirCode = directs_code.get(0);
+                        intent.putExtra("otherDir", otherDir);
+                        intent.putExtra("otherDirCode", otherDirCode);
+                    } else {
+                        String otherDir = "0";
+                        String otherDirCode = "0";
+                        intent.putExtra("otherDir", otherDir);
+                        intent.putExtra("otherDirCode", otherDirCode);
+                    }
+
+                    //String url = Utils.URL3 + lin + Utils.URL3_EX1 + dirCode + Utils.URL3_EX2 + "2";
+                    //GetData getData = new GetData(MainActivity.this,url);
+                    //getData.execute();
+
+                    intent.putExtra("lin", lin);
+                    intent.putExtra("dir", dir);
+                    intent.putExtra("dirCode", dirCode);
+
+                    startActivityForResult(intent, 1);
+
+
+                } else {
+                    Toast.makeText(getApplicationContext(), "数据获取错误！", Toast.LENGTH_LONG).show();
+                }
+            }
 
         }
     };
@@ -155,62 +188,65 @@ public class MainActivity extends AppCompatActivity {
         query_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (autocomText.getText().toString().trim() != "" && sel_dir.getSelectedItem() != null) {
-//                    new Thread(new Runnable() {
-//                        //Document doc = null;
-//
-//                        @Override
-//                        public void run() {
-                            String lin = autocomText.getText().toString();
-                            Directs direct = (Directs) sel_dir.getSelectedItem();
-                            String dirCode = direct.getDir_code();
-                            String dir = direct.getDir();
-
+                query_button.setClickable(false);
+                lin = autocomText.getText().toString().trim();
+                direct = (Directs) sel_dir.getSelectedItem();
+                dirCode = direct.getDir_code();
+                dir = direct.getDir();
+                url = Utils.URL3 + lin + Utils.URL3_EX1 + dirCode + Utils.URL3_EX2 + "2";
+                if (lin != "" && dirCode != "") {
+                    new Thread(new Runnable() {
+                        //Document doc = null;
+                        @Override
+                        public void run() {
+                            //清空上次查询的数据
+                            Utils.busStationId.clear();
+                            Utils.busStations.clear();
+                            Utils.busLocation.clear();
+                            Utils.busAbstracts.clear();
                             //TODO
                             //参数2暂时随便写的，是上车站点（留做后期扩展）
-                            //String url = Utils.URL3 + lin + Utils.URL3_EX1 + dir + Utils.URL3_EX2 + "2";
-                            Intent intent = new Intent(MainActivity.this, BusMap.class);
-                            //intent.putExtra("url", url);
-                            if (directs_code.size() >= 1 && directs.size() >= 1) {
-                                directs_code.remove(dirCode);
-                                directs.remove(dir);
+                            response = ascii2native(sendHttpRequest(url)).replace("\\", "");
 
-                                if(directs_code.size()==1||directs.size()==1) {
-                                    String otherDir = directs.get(0);
-                                    String otherDirCode = directs_code.get(0);
-                                    intent.putExtra("otherDir", otherDir);
-                                    intent.putExtra("otherDirCode", otherDirCode);
-                                }else{
-                                    String otherDir = "0";
-                                    String otherDirCode = "0";
-                                    intent.putExtra("otherDir", otherDir);
-                                    intent.putExtra("otherDirCode", otherDirCode);
+                            if (response.trim() == "" || response == null) {
+                                Toast.makeText(MainActivity.this, "数据异常！", Toast.LENGTH_LONG).show();
+                            } else if (response == "err") {
+                                Toast.makeText(MainActivity.this, "数据异常！", Toast.LENGTH_LONG).show();
+                            } else {
+                                Element doc = Jsoup.parse(response);
+                                Elements station_eles = doc.select("div").select("ul").select("li").select("div");
+                                Elements abstract_eles = doc.select("article").select("p");
+                                if (station_eles.size() > 0 && abstract_eles.size() > 0) {
+                                    stations = new ArrayList<>();
+
+                                    for (int i = 0; i < station_eles.size(); i++) {
+                                        Element a = station_eles.get(i);
+                                        stations.add(a);
+                                    }
+                                    for (int i = 0; i < abstract_eles.size(); i++) {
+                                        Element b = abstract_eles.get(i);
+                                        Utils.busAbstracts.add(b.text().toString().trim());
+                                    }
                                 }
+                                //String showStr = "";
+                                Element b;
 
-                                String url = Utils.URL3 + lin + Utils.URL3_EX1 + dirCode + Utils.URL3_EX2 + "2";
-                                GetData getData = new GetData(MainActivity.this,url);
-                                getData.execute();
+                                for (int i = 0; i < stations.size(); i++) {
+                                    b = stations.get(i);
+                                    Utils.busStationId.add(b.select("div").attr("id").toString().replace("\\", "").replace("\"", ""));
+                                    Utils.busStations.add(b.select("div span").text().toString().replace("<\\/span><\\/div><\\/li>", ""));
+                                    if (i % 2 == 0) {
+                                        Utils.busLocation.add(b.select("div i.buss").parents().attr("id").toString());
+                                    } else {
+                                        Utils.busLocation.add(b.select("div i.busc").parents().attr("id").toString());
+                                    }
+                                    //showStr += ascii2native(busStations.get(i).toString() + "============" + busLocation.get(i).toString() + "\n");
 
-                                intent.putExtra("lin", lin);
-                                intent.putExtra("dir", dir);
-                                intent.putExtra("dirCode", dirCode);
-
-                                startActivityForResult(intent, 1);
-
-
-                            }else {
-                                Toast.makeText(getApplicationContext(), "数据获取错误！", Toast.LENGTH_LONG).show();
+                                }
+                                handler.sendEmptyMessage(Utils.QUERY);
                             }
-                            //
-//                            response = ascii2native(sendHttpRequest(url)).replace("\\", "");
-//                            if (response.trim() != "" && response != null) {
-//                                handler.sendEmptyMessage(Utils.QUERY);
-//                            } else {
-//                                Toast.makeText(getApplicationContext(), "发生错误！", Toast.LENGTH_LONG).show();
-//
-//                            }
-//                        }
-//                    }).start();
+                        }
+                    }).start();
                 } else {
                     Toast.makeText(getApplicationContext(), "请选择公交线路", Toast.LENGTH_LONG).show();
                 }
@@ -218,4 +254,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        query_button.setClickable(true);
+    }
 }

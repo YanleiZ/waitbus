@@ -30,6 +30,7 @@ public class Utils {
     public final static ArrayList busStationId = new ArrayList() ;
     public final static ArrayList busStations = new ArrayList();
     public final static ArrayList busLocation =new ArrayList();
+    public final static ArrayList busAbstracts = new ArrayList();
 
     //public static ArrayList<Element> stations = new ArrayList<>();
     //public static ArrayList<Element> abstracts = new ArrayList<>();
