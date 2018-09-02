@@ -1,12 +1,17 @@
 package com.yanleiz.waitbus.utils;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
+
+import com.yanleiz.waitbus.waitbus.R;
 
 
 public class DrawView extends View {
@@ -45,9 +50,9 @@ public class DrawView extends View {
         fPaint.setAntiAlias(true);          //抗锯齿
         redPaint.setAntiAlias(true);          //抗锯齿
 
-        sPaint.setColor(Color.GREEN);//画笔颜色
-        sPaint2.setColor(Color.GREEN);//画笔颜色
-        fPaint.setColor(Color.GREEN);//画笔颜色
+        sPaint.setColor(getResources().getColor(R.color.station));//画笔颜色
+        sPaint2.setColor(getResources().getColor(R.color.station));//画笔颜色
+        fPaint.setColor(getResources().getColor(R.color.station));//画笔颜色
         redPaint.setColor(Color.RED);//画笔颜色
         blackPaint.setColor(Color.BLACK);//画笔颜色
 
@@ -75,13 +80,19 @@ public class DrawView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.bus);
+
+        Matrix matrix = new Matrix();
+        matrix.postScale((float) 65.0 / (float) bitmap.getWidth(), (float) 65.0 / (float) bitmap.getHeight());
+        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
         int center = getWidth() / 10;
         int texty = 60;
         for (int i = 0; i < Utils.busAbstracts.size(); i++) {
             canvas.drawText(Utils.busAbstracts.get(i).toString(), 0, texty, blackPaint);
             texty += 60;
         }
-        canvas.drawLine(0, texty-10, getWidth(), texty-10, blackPaint);
+        canvas.drawLine(0, texty - 10, getWidth(), texty - 10, blackPaint);
 
         //int innerCircle = dip2px(getContext(), 20); //设置内圆半径
         //int ringWidth = dip2px(getContext(), 5); //设置圆环宽度
@@ -104,6 +115,8 @@ public class DrawView extends View {
                 if (Utils.busLocation.get(i - 1).toString().trim() != "") {
                     canvas.drawCircle(center, center1, 30, sPaint);
                     canvas.drawCircle(center, center1, 20, redPaint);
+                    canvas.drawBitmap(bitmap, 10, center1 - 30, null);
+
                     canvas.drawLine(center + 34, center1 + 27, center * 4, center1 + 27, sPaint2);
                     canvas.drawText(Utils.busStations.get(i - 1).toString(), center * 4 + 4, center1 + 25, fPaint);
                 } else {
@@ -120,6 +133,8 @@ public class DrawView extends View {
             } else {
                 if (Utils.busLocation.get(i - 1).toString().trim() != "") {
                     canvas.drawLine(center, center1 + 30, center, center1 + center - 30, redPaint);
+                    canvas.drawBitmap(bitmap, 10, center1 +center/2 - 30, null);
+
                 } else {
                     canvas.drawLine(center, center1 + 30, center, center1 + center - 30, sPaint2);
                 }
