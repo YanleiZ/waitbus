@@ -70,7 +70,7 @@ public class DrawView extends View {
         sPaint.setStrokeWidth(8);           //画笔粗细
         sPaint2.setStrokeWidth(2);           //画笔粗细
         fPaint.setStrokeWidth(4);           //画笔粗细
-        redPaint.setStrokeWidth(4);           //画笔粗细
+        redPaint.setStrokeWidth(6);           //画笔粗细
         blackPaint.setStrokeWidth(6);           //画笔粗细
 
 
@@ -83,7 +83,7 @@ public class DrawView extends View {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.bus);
 
         Matrix matrix = new Matrix();
-        matrix.postScale((float) 65.0 / (float) bitmap.getWidth(), (float) 65.0 / (float) bitmap.getHeight());
+        matrix.postScale((float) 64.0 / (float) bitmap.getWidth(), (float) 64.0 / (float) bitmap.getHeight());
         bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
 
         int center = getWidth() / 10;
@@ -132,7 +132,7 @@ public class DrawView extends View {
                 //canvas.drawCircle(center,center, innerCircle+ringWidth, mPaint);
             } else {
                 if (Utils.busLocation.get(i - 1).toString().trim() != "") {
-                    canvas.drawLine(center, center1 + 30, center, center1 + center - 30, redPaint);
+                    canvas.drawLine(center, center1 + 34, center, center1 + center - 34, redPaint);
                     canvas.drawBitmap(bitmap, 10, center1 +center/2 - 30, null);
 
                 } else {

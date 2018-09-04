@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private AutoCompleteTextView autocomText = null;
     private Spinner sel_dir = null;
     private Button query_button = null;
-    private String[] text = null;
+    // private String[] text = null;
     ArrayList<String> directs;
     ArrayList<String> directs_code;
     public static String response;
@@ -53,7 +53,8 @@ public class MainActivity extends AppCompatActivity {
     private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             if (msg.what == Utils.SELECT_LIN) {
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_dropdown_item_1line, text);
+                ArrayList ary = new ArrayList(Utils.allBus);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_dropdown_item_1line, ary);
                 autocomText.setAdapter(adapter);
                 ////dd[@id="selBLine"]
                 //ArrayList<Node> list = (ArrayList<Node>) doc.selectNodes("//dd[@id='selBLine']");
@@ -100,6 +101,8 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(getApplicationContext(), "数据获取错误！", Toast.LENGTH_LONG).show();
                 }
+            } else if (msg.what == Utils.CLICKBLE) {
+                query_button.setClickable(true);
             }
 
         }
@@ -110,8 +113,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
-        startGet();
-
+        checkGetAllBuss();
 
     }
 
@@ -131,11 +133,20 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < ele_bus.size(); i++) {
                     bus[i] = ele_bus.get(i).text();
                 }
-                text = bus;
+                //text = bus;
 
                 handler.sendEmptyMessage(Utils.SELECT_LIN);
             }
         }).start();
+    }
+
+    private void checkGetAllBuss() {
+        if (Utils.allBus.size() != 0 && Utils.allBus != null) {
+            handler.sendEmptyMessage(Utils.SELECT_LIN);
+        } else {
+            Utils.getAllBus();
+            Toast.makeText(MainActivity.this, "网络连接缓慢！", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void initView() {
@@ -188,13 +199,15 @@ public class MainActivity extends AppCompatActivity {
         query_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                query_button.setClickable(false);
                 lin = autocomText.getText().toString().trim();
                 direct = (Directs) sel_dir.getSelectedItem();
-                dirCode = direct.getDir_code();
-                dir = direct.getDir();
-                url = Utils.URL3 + lin + Utils.URL3_EX1 + dirCode + Utils.URL3_EX2 + "2";
-                if (lin != "" && dirCode != "") {
+                if (lin != "" && direct != null) {
+                    dirCode = direct.getDir_code();
+
+                    query_button.setClickable(false);
+
+                    dir = direct.getDir();
+                    url = Utils.URL3 + lin + Utils.URL3_EX1 + dirCode + Utils.URL3_EX2 + "2";
                     new Thread(new Runnable() {
                         //Document doc = null;
                         @Override
@@ -209,8 +222,10 @@ public class MainActivity extends AppCompatActivity {
                             response = ascii2native(sendHttpRequest(url)).replace("\\", "");
 
                             if (response.trim() == "" || response == null) {
+                                handler.sendEmptyMessage(Utils.CLICKBLE);
                                 Toast.makeText(MainActivity.this, "数据异常！", Toast.LENGTH_LONG).show();
                             } else if (response == "err") {
+                                handler.sendEmptyMessage(Utils.CLICKBLE);
                                 Toast.makeText(MainActivity.this, "数据异常！", Toast.LENGTH_LONG).show();
                             } else {
                                 Element doc = Jsoup.parse(response);

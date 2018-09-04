@@ -65,16 +65,16 @@ public class BusMap extends AppCompatActivity {
         super.onPause();
         timer.cancel();
     }
-/*
+
     @Override
     protected void onRestart() {
         super.onRestart();
-        timer.schedule(task, 10000, 10000);
-    }*/
+        timer.schedule(task, 10, 10000);
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        BusMap.this.finish();
+        //BusMap.this.finish();
     }
 }

@@ -6,20 +6,26 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.util.Log;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Utils {
     public final static int SELECT_LIN = 11;
     public final static int SELECT_DIR = 22;
     public final static int QUERY = 33;
+    public final static int CLICKBLE = 44;
 
     public final static String URL1 = "http://www.bjbus.com/home/index.php";
     public final static String URL2 = "http://www.bjbus.com/home/ajax_rtbus_data.php?act=getLineDir&selBLine=";
@@ -27,10 +33,12 @@ public class Utils {
     public final static String URL3_EX1 = "&selBDir=";
     public final static String URL3_EX2 = "&selBStop=";
 
-    public final static ArrayList busStationId = new ArrayList() ;
+    public final static ArrayList busStationId = new ArrayList();
     public final static ArrayList busStations = new ArrayList();
-    public final static ArrayList busLocation =new ArrayList();
+    public final static ArrayList busLocation = new ArrayList();
     public final static ArrayList busAbstracts = new ArrayList();
+
+    public final static HashSet allBus = new HashSet();
 
     //public static ArrayList<Element> stations = new ArrayList<>();
     //public static ArrayList<Element> abstracts = new ArrayList<>();
@@ -120,5 +128,26 @@ public class Utils {
         }
 
         return true;
+    }
+    public static void getAllBus() {
+
+        new Thread(new Runnable() {
+            Document doc = null;
+
+            @Override
+            public void run() {
+                try {
+                    doc = Jsoup.connect(Utils.URL1).get();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Elements ele_bus = doc.body().select("dd#selBLine a");
+                for (int i = 0; i < ele_bus.size(); i++) {
+                    Utils.allBus.add(ele_bus.get(i).text());
+                }
+
+                // handler.sendEmptyMessage(Utils.SELECT_LIN);
+            }
+        }).start();
     }
 }

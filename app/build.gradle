@@ -28,5 +28,20 @@ dependencies {
     //implementation 'org.dom4j:dom4j:2.1.0'
     implementation files('src/libs/jsoup-1.11.3.jar')
     implementation 'com.alibaba:fastjson:1.1.70.android'
+    implementation files('libs/BaiduLBS_Android.jar')
 
+    compile fileTree(dir:  'libs' , include: ['*.jar'])
+    androidTestCompile ('com.android.support.test.espresso: espresso-core: 2.2.2', {
+        exclude group: 'com.android.support',  module: 'support-annotations'
+    })
+    compile 'com.android.support: appcompat-v7:25.1.0'
+    testCompile 'junit: junit: 4.12'
+}
+
+
+sourceSets{
+    main{
+        jnilibs.srcDir 'libs'
+        jni.srcDirs = []    //disable automatic ndk-build
+    }
 }
