@@ -99,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                 } else {
+                    query_button.setClickable(true);
                     Toast.makeText(getApplicationContext(), "数据获取错误！", Toast.LENGTH_LONG).show();
                 }
             } else if (msg.what == Utils.CLICKBLE) {

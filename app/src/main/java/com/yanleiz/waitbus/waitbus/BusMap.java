@@ -59,7 +59,7 @@ public class BusMap extends AppCompatActivity {
         //linLay.addView(new DrawView(BusMap.this));
 
     }
-
+/*
     @Override
     protected void onPause() {
         super.onPause();
@@ -76,5 +76,5 @@ public class BusMap extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         //BusMap.this.finish();
-    }
+    }*/
 }
