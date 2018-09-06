@@ -18,7 +18,7 @@ import static com.yanleiz.waitbus.utils.Utils.isInternetAvailable;
 public class LaunchActivity extends Activity implements View.OnClickListener {
 
 
-    private int recLen = 5;//跳过倒计时提示5秒
+    private int recLen = 3;//跳过倒计时提示3秒
     private TextView tv;
     Timer timer = new Timer();
     private Handler handler;
@@ -53,7 +53,7 @@ public class LaunchActivity extends Activity implements View.OnClickListener {
                         Toast.makeText(LaunchActivity.this, "网络错误！", Toast.LENGTH_LONG).show();
                     }
                 }
-            }, 5000);//延迟5S后发送handler信息
+            }, 3000);//延迟3S后发送handler信息
         } else {
             Toast.makeText(LaunchActivity.this, "网络未联通！！", Toast.LENGTH_LONG).show();
 

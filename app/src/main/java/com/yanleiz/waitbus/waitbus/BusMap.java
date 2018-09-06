@@ -3,7 +3,6 @@ package com.yanleiz.waitbus.waitbus;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Window;
 
 import com.yanleiz.waitbus.utils.GetData;
 import com.yanleiz.waitbus.utils.Utils;
@@ -21,8 +20,7 @@ public class BusMap extends AppCompatActivity {
     String otherDirCode;
 
     String url;
-    Timer timer =  new java.util.Timer(true);
-    TimerTask task;
+    Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,34 +45,37 @@ public class BusMap extends AppCompatActivity {
         url = Utils.URL3 + lin + Utils.URL3_EX1 + dirCode + Utils.URL3_EX2 + "2";
 
 
-        task = new TimerTask() {
-            public void run() {
-                GetData getData = new GetData(BusMap.this, url);
-                getData.execute();
-            }
-        };
-        timer.schedule(task, 10000, 10000);
-
         //LinearLayout linLay = findViewById(R.id.linLay);
         //linLay.addView(new DrawView(BusMap.this));
 
     }
-/*
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (timer != null) {
+            timer.cancel();
+
+        }
+        startTimer();
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
-        timer.cancel();
+        if (timer != null) {
+            timer.cancel();
+        }
     }
 
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        timer.schedule(task, 10, 10000);
-    }
+    private void startTimer() {
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        //BusMap.this.finish();
-    }*/
+        timer = new java.util.Timer();
+        timer.schedule(new TimerTask() {
+            public void run() {
+                GetData getData = new GetData(BusMap.this, url);
+                getData.execute();
+            }
+        }, 1000, 10000);
+    }
 }

@@ -70,14 +70,16 @@ public class MainActivity extends AppCompatActivity {
                 sel_dir.setAdapter(adapter);
             } else if (msg.what == Utils.QUERY) {
                 Intent intent = new Intent(MainActivity.this, BusMap.class);
+                ArrayList<String> tmp_directs = directs;
+                ArrayList<String> tmp_directs_code = directs_code;
                 //intent.putExtra("url", url);
-                if (directs_code.size() >= 1 && directs.size() >= 1) {
-                    directs_code.remove(dirCode);
-                    directs.remove(dir);
+                if (tmp_directs_code.size() >= 1 && tmp_directs.size() >= 1) {
+                    tmp_directs.remove(dirCode);
+                    tmp_directs_code.remove(dir);
 
-                    if (directs_code.size() == 1 || directs.size() == 1) {
-                        String otherDir = directs.get(0);
-                        String otherDirCode = directs_code.get(0);
+                    if (tmp_directs_code.size() == 1 && tmp_directs.size() == 1) {
+                        String otherDir = tmp_directs.get(0);
+                        String otherDirCode = tmp_directs_code.get(0);
                         intent.putExtra("otherDir", otherDir);
                         intent.putExtra("otherDirCode", otherDirCode);
                     } else {
@@ -117,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         checkGetAllBuss();
 
     }
-
+/*
     private void startGet() {
         new Thread(new Runnable() {
             Document doc = null;
@@ -139,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
                 handler.sendEmptyMessage(Utils.SELECT_LIN);
             }
         }).start();
-    }
+    }*/
 
     private void checkGetAllBuss() {
         if (Utils.allBus.size() != 0 && Utils.allBus != null) {
