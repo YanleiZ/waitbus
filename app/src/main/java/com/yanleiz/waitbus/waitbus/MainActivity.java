@@ -117,7 +117,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initView();
         checkGetAllBuss();
-
+        //获取定位权限
+        requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
     }
 /*
     private void startGet() {
@@ -210,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
                     query_button.setClickable(false);
 
                     dir = direct.getDir();
-                    url = Utils.URL3 + lin + Utils.URL3_EX1 + dirCode + Utils.URL3_EX2 + "2";
+                    url = Utils.URL3 + lin + Utils.URL3_EX1 + dirCode + Utils.URL3_EX2 + Utils.aboardStation;
                     new Thread(new Runnable() {
                         //Document doc = null;
                         @Override
@@ -251,8 +253,8 @@ public class MainActivity extends AppCompatActivity {
 
                                 for (int i = 0; i < stations.size(); i++) {
                                     b = stations.get(i);
-                                    Utils.busStationId.add(b.select("div").attr("id").toString().replace("\\", "").replace("\"", ""));
-                                    Utils.busStations.add(b.select("div span").text().toString().replace("<\\/span><\\/div><\\/li>", ""));
+                                    Utils.busStationId.add(b.select("div").attr("id").toString());
+                                    Utils.busStations.add(b.select("div span").attr("title").toString());
                                     if (i % 2 == 0) {
                                         Utils.busLocation.add(b.select("div i.buss").parents().attr("id").toString());
                                     } else {

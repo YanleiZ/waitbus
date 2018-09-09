@@ -1,6 +1,7 @@
 package com.yanleiz.waitbus.utils;
 
 import android.content.Context;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
@@ -39,6 +40,11 @@ public class Utils {
     public final static ArrayList busAbstracts = new ArrayList();
 
     public final static HashSet allBus = new HashSet();
+
+    public static ArrayList<String> nearStation = new ArrayList<>();
+
+    public static int aboardStation = 4;
+
 
     //public static ArrayList<Element> stations = new ArrayList<>();
     //public static ArrayList<Element> abstracts = new ArrayList<>();
@@ -129,6 +135,7 @@ public class Utils {
 
         return true;
     }
+
     public static void getAllBus() {
 
         new Thread(new Runnable() {
@@ -149,5 +156,15 @@ public class Utils {
                 // handler.sendEmptyMessage(Utils.SELECT_LIN);
             }
         }).start();
+    }
+
+    /**
+     * 判断GPS是否打开
+     *
+     * @param lm
+     * @return
+     */
+    public static boolean isGpsAble(LocationManager lm) {
+        return lm.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER) ? true : false;
     }
 }

@@ -81,21 +81,29 @@ public class DrawView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.bus);
+        //公交车位置图标
+        Bitmap busBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.bus);
 
         Matrix matrix = new Matrix();
-        matrix.postScale((float) 64.0 / (float) bitmap.getWidth(), (float) 64.0 / (float) bitmap.getHeight());
-        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        matrix.postScale((float) 64.0 / (float) busBitmap.getWidth(), (float) 64.0 / (float) busBitmap.getHeight());
+        busBitmap = Bitmap.createBitmap(busBitmap, 0, 0, busBitmap.getWidth(), busBitmap.getHeight(), matrix, true);
+        //当前位置图标
+        Bitmap positionBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.currposition);
+
+        Matrix matrix1 = new Matrix();
+
+        matrix1.postScale((float) 74.0 / (float) positionBitmap.getWidth(), (float) 74.0 / (float) positionBitmap.getHeight());
+        positionBitmap = Bitmap.createBitmap(positionBitmap, 0, 0, positionBitmap.getWidth(), positionBitmap.getHeight(), matrix1, true);
 
         int center = getWidth() / 10;
         //圆环半径
-        int radius = getWidth() /36;
-        int texty = 60;
+        int radius = getWidth() / 36;
+        int texty = radius * 2 - 10;
         for (int i = 0; i < Utils.busAbstracts.size(); i++) {
             canvas.drawText(Utils.busAbstracts.get(i).toString(), 0, texty, blackPaint);
-            texty += 60;
+            texty += radius * 2 - 10;
         }
-        canvas.drawLine(0, texty - 10, getWidth(), texty - 10, blackPaint);
+        canvas.drawLine(0, texty, getWidth(), texty, blackPaint);
 
         //int innerCircle = dip2px(getContext(), 20); //设置内圆半径
         //int ringWidth = dip2px(getContext(), 5); //设置圆环宽度
@@ -117,16 +125,23 @@ public class DrawView extends View {
                 center1 += center;
                 if (Utils.busLocation.get(i - 1).toString().trim() != "") {
                     canvas.drawCircle(center, center1, radius, sPaint);
-                    canvas.drawCircle(center, center1, radius-8, redPaint);
-                    canvas.drawBitmap(bitmap, 10, center1 - 30, null);
+                    canvas.drawCircle(center, center1, radius - 8, redPaint);
+                    canvas.drawBitmap(busBitmap, 10, center1 - 30, null);
 
-                    canvas.drawLine(center + 34, center1 + 27, center * 4, center1 + radius-3, sPaint2);
-                    canvas.drawText(Utils.busStations.get(i - 1).toString(), center * 4 + 4, center1 + radius-5, fPaint);
+                    canvas.drawLine(center + radius, center1 + 27, center * 4, center1 + radius - 3, sPaint2);
+                    canvas.drawText(Utils.busStations.get(i - 1).toString(), center * 4 + 4, center1 + radius - 5, fPaint);
                 } else {
                     canvas.drawCircle(center, center1, radius, sPaint);
-                    canvas.drawCircle(center, center1, radius-8, fPaint);
-                    canvas.drawLine(center + radius+4, center1 + radius-3, center * 4, center1 + radius-3, sPaint2);
-                    canvas.drawText(Utils.busStations.get(i - 1).toString(), center * 4 + 4, center1 + radius-5, fPaint);
+                    canvas.drawCircle(center, center1, radius - 8, fPaint);
+                    canvas.drawLine(center + radius + 4, center1 + radius - 3, center * 4, center1 + radius - 3, sPaint2);
+                    canvas.drawText(Utils.busStations.get(i - 1).toString(), center * 4 + 4, center1 + radius - 5, fPaint);
+                    if (Utils.nearStation.size() > 0) {
+                        if (Utils.nearStation.get(0).replace("(公交站)", "").equals(Utils.busStations.get(i - 1).toString())) {
+                            canvas.drawBitmap(positionBitmap, center + radius + 10, center1 - 30, null);
+                            Utils.aboardStation = (i + 1) / 2;
+                        }
+
+                    }
                 }
 
 
@@ -135,8 +150,8 @@ public class DrawView extends View {
                 //canvas.drawCircle(center,center, innerCircle+ringWidth, mPaint);
             } else {
                 if (Utils.busLocation.get(i - 1).toString().trim() != "") {
-                    canvas.drawLine(center, center1 + radius+4, center, center1 + center - radius-4, redPaint);
-                    canvas.drawBitmap(bitmap, 10, center1 +center/2 - radius, null);
+                    canvas.drawLine(center, center1 + radius + 4, center, center1 + center - radius - 4, redPaint);
+                    canvas.drawBitmap(busBitmap, 10, center1 + center / 2 - radius, null);
 
                 } else {
                     canvas.drawLine(center, center1 + radius, center, center1 + center - radius, sPaint2);

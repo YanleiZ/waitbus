@@ -24,7 +24,7 @@ public class GetData extends AsyncTask<String, String, String> {
     public GetData(Context context, String url) {
         this.context = context;
         this.url = url;
-       // this.dv = dv;
+        // this.dv = dv;
 
     }
 
@@ -46,21 +46,29 @@ public class GetData extends AsyncTask<String, String, String> {
             Element doc = Jsoup.parse(s);
             Elements station_eles = doc.select("div").select("ul").select("li").select("div");
             Elements abstract_eles = doc.select("article").select("p");
+            Utils.busStationId.clear();
+            Utils.busStations.clear();
+            Utils.busLocation.clear();
+            Utils.busAbstracts.clear();
+
             if (station_eles.size() > 0 && abstract_eles.size() > 0) {
                 stations = new ArrayList<>();
                 abstracts = new ArrayList<>();
 
                 for (int i = 0; i < station_eles.size(); i++) {
                     Element a = station_eles.get(i);
-                    stations.add(a);
+                    Utils.busStationId.add(a.select("div").attr("id").toString());
+                    Utils.busStations.add(a.select("div span").attr("title").toString());
+                    if (i % 2 == 0) {
+                        Utils.busLocation.add(a.select("div i.buss").parents().attr("id").toString());
+                    } else {
+                        Utils.busLocation.add(a.select("div i.busc").parents().attr("id").toString());
+                    }
                 }
                 for (int i = 0; i < abstract_eles.size(); i++) {
-                    Element b = abstract_eles.get(i);
-                    abstracts.add(b);
+                    Utils.busAbstracts.add(abstract_eles.get(i).text().toString().trim());
                 }
             }
-            String showStr = "";
-            Element b;
           /*  for (int i = 0; i < stations.size(); i++) {
                 b = stations.get(i);
                 busStationId.add(b.select("div").attr("id").toString().replace("\\", "").replace("\"", ""));
@@ -76,21 +84,21 @@ public class GetData extends AsyncTask<String, String, String> {
                 } else {
                     showStr += ascii2native(busStations.get(i).toString() + busLocation.get(i).toString() + "\n");
                 }*/
-            Utils.busStationId.clear();
-            Utils.busStations.clear();
-            Utils.busLocation.clear();
-            for (int i = 0; i < stations.size(); i++) {
+
+            /*for (int i = 0; i < stations.size(); i++) {
                 b = stations.get(i);
-                Utils.busStationId.add(b.select("div").attr("id").toString().replace("\\", "").replace("\"", ""));
-                Utils.busStations.add(b.select("div span").text().toString().replace("<\\/span><\\/div><\\/li>", ""));
+                Utils.busStationId.add(b.select("div").attr("id").toString());
+                Utils.busStations.add(b.select("div span").attr("title").toString());
                 if (i % 2 == 0) {
                     Utils.busLocation.add(b.select("div i.buss").parents().attr("id").toString());
                 } else {
                     Utils.busLocation.add(b.select("div i.busc").parents().attr("id").toString());
                 }
                 //showStr += ascii2native(busStations.get(i).toString() + "============" + busLocation.get(i).toString() + "\n");
-
-            }
+            }*//*
+            for (int i=0;i<abstracts.size();i++){
+                Utils.busAbstracts.add(abstracts.get(i).text())
+            }*/
             //dv.setBusStations(busLocation);
             //dv.setBusLocation(busLocation);
         }
