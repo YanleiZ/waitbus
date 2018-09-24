@@ -3,7 +3,9 @@ package com.yanleiz.waitbus.waitbus;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -48,6 +50,40 @@ public class BusMap extends AppCompatActivity implements PoiSearch.OnPoiSearchLi
     private int currentPage = 0;// 当前页面，从0开始计数
     private PoiSearch.Query query;// Poi查询条件类
     private List<PoiItem> poiItems;// poi数据
+    private String locationProvider;
+
+
+    LocationListener locationListener = new LocationListener() {
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle arg2) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+            //Log.d(TAG, "onProviderEnabled: " + provider + ".." + Thread.currentThread().getName());
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+            //Log.d(TAG, "onProviderDisabled: " + provider + ".." + Thread.currentThread().getName());
+        }
+
+        @Override
+        public void onLocationChanged(Location location) {
+            //Log.d(TAG, "onLocationChanged: " + ".." + Thread.currentThread().getName());
+            //如果位置发生变化,重新显示
+            if (lc != null) {
+                lp = new LatLonPoint(lc.getLongitude(), lc.getLatitude());
+            } else {
+                lp = new LatLonPoint(0, 0);
+            }
+
+
+            doSearchQuery();
+        }
+    };
 
 
     @Override
@@ -78,7 +114,7 @@ public class BusMap extends AppCompatActivity implements PoiSearch.OnPoiSearchLi
 
         //
 
-        lm = (LocationManager) getSystemService(TestMapPoiAc.LOCATION_SERVICE);
+        lm = (LocationManager) getSystemService(BusMap.LOCATION_SERVICE);
 
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -88,19 +124,41 @@ public class BusMap extends AppCompatActivity implements PoiSearch.OnPoiSearchLi
         } /*else {
             Toast.makeText(TestMapPoiAc.this,"无权限获取地理位置！",Toast.LENGTH_SHORT).show();
         }*/
-        if (Utils.isGpsAble(lm)) {
-            lc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+       /* if (Utils.isGpsAble(lm)) {
+            int count =10;
+            while (lc == null&&count>=1) {
+                lc = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                count--;
+            }
         } else {
-            lc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            int count =10;
+            while (lc == null&&count>=1) {
+                lc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                count--;
+            }
 
-        }
-        Double a = lc.getLongitude();
-
-        Double b = lc.getLatitude();
-        lp = new LatLonPoint(a, b);
-        doSearchQuery();
+        }*/
 
         //
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_COARSE);//低精度，如果设置为高精度，依然获取不了location。
+        criteria.setAltitudeRequired(false);//不要求海拔
+        criteria.setBearingRequired(false);//不要求方位
+        criteria.setCostAllowed(true);//允许有花费
+        criteria.setPowerRequirement(Criteria.POWER_LOW);//低功耗
+
+        locationProvider = lm.getBestProvider(criteria, true);
+        lm.requestLocationUpdates(locationProvider, 0, 0, locationListener);
+        lc = lm.getLastKnownLocation(locationProvider);
+
+        if (lc != null) {
+            lp = new LatLonPoint(lc.getLongitude(), lc.getLatitude());
+        } else {
+            lp = new LatLonPoint(0, 0);
+        }
+
+
+        doSearchQuery();
 
     }
 
@@ -127,9 +185,9 @@ public class BusMap extends AppCompatActivity implements PoiSearch.OnPoiSearchLi
         timer = new java.util.Timer();
         timer.schedule(new TimerTask() {
             public void run() {
-                //url = Utils.URL3 + lin + Utils.URL3_EX1 + dirCode + Utils.URL3_EX2 + Utils.aboardStation;
+                url = Utils.URL3 + lin + Utils.URL3_EX1 + dirCode + Utils.URL3_EX2 + Utils.aboardStation;
 
-                GetData getData = new GetData(BusMap.this, Utils.URL3 + lin + Utils.URL3_EX1 + dirCode + Utils.URL3_EX2 + Utils.aboardStation);
+                GetData getData = new GetData(BusMap.this, url);
                 getData.execute();
             }
         }, 1000, 10000);
@@ -168,14 +226,14 @@ public class BusMap extends AppCompatActivity implements PoiSearch.OnPoiSearchLi
                     List<SuggestionCity> suggestionCities = poiResult
                             .getSearchSuggestionCitys();// 当搜索不到poiitem数据时，会返回含有搜索关键字的城市信息
                     if (poiItems != null && poiItems.size() > 0) {
-                        int tmpDistance = 1000;
+                        //int tmpDistance = 1000;
                         for (int i = 0; i < poiItems.size(); i++) {
                             if (poiItems.get(i).toString().contains("公交站")) {
-                                if (poiItems.get(i).getDistance() < tmpDistance) {
-                                    Utils.nearStation.clear();
-                                    tmpDistance = poiItems.get(i).getDistance();
-                                    Utils.nearStation.add(poiItems.get(i).toString());
-                                }
+                                //if (poiItems.get(i).getDistance() < tmpDistance) {
+                                //  Utils.nearStation.clear();
+                                // tmpDistance = poiItems.get(i).getDistance();
+                                Utils.nearStation.add(poiItems.get(i).toString());
+                                //}
 
                                 s += poiItems.get(i).toString() + "\n";
                             }

@@ -96,6 +96,8 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra("lin", lin);
                     intent.putExtra("dir", dir);
                     intent.putExtra("dirCode", dirCode);
+                    //重置默认上车站
+                    Utils.aboardStation = 1;
 
                     startActivityForResult(intent, 1);
 

@@ -8,8 +8,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.util.ArrayList;
-
 import static com.yanleiz.waitbus.utils.Utils.ascii2native;
 import static com.yanleiz.waitbus.utils.Utils.sendHttpRequest;
 
@@ -17,9 +15,6 @@ public class GetData extends AsyncTask<String, String, String> {
     private Context context;
     private String url;
     //private DrawView dv;
-
-    private ArrayList<Element> stations;
-    private ArrayList<Element> abstracts;
 
     public GetData(Context context, String url) {
         this.context = context;
@@ -52,8 +47,7 @@ public class GetData extends AsyncTask<String, String, String> {
             Utils.busAbstracts.clear();
 
             if (station_eles.size() > 0 && abstract_eles.size() > 0) {
-                stations = new ArrayList<>();
-                abstracts = new ArrayList<>();
+
 
                 for (int i = 0; i < station_eles.size(); i++) {
                     Element a = station_eles.get(i);

@@ -43,7 +43,7 @@ public class Utils {
 
     public static ArrayList<String> nearStation = new ArrayList<>();
 
-    public static int aboardStation = 4;
+    public static int aboardStation = 1;
 
 
     //public static ArrayList<Element> stations = new ArrayList<>();

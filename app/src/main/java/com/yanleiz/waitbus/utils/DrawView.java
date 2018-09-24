@@ -99,8 +99,15 @@ public class DrawView extends View {
         //圆环半径
         int radius = getWidth() / 36;
         int texty = radius * 2 - 10;
-        for (int i = 0; i < Utils.busAbstracts.size(); i++) {
-            canvas.drawText(Utils.busAbstracts.get(i).toString(), 0, texty, blackPaint);
+        if (Utils.nearStation.size() > 0) {
+            for (int i = 0; i < Utils.busAbstracts.size(); i++) {
+                canvas.drawText(Utils.busAbstracts.get(i).toString(), 0, texty, blackPaint);
+                texty += radius * 2 - 10;
+            }
+        }else{
+            canvas.drawText(Utils.busAbstracts.get(0).toString(), 0, texty, blackPaint);
+            texty += radius * 2 - 10;
+            canvas.drawText("您附近没有本车公交站点", 0, texty, blackPaint);
             texty += radius * 2 - 10;
         }
         canvas.drawLine(0, texty, getWidth(), texty, blackPaint);
@@ -127,7 +134,13 @@ public class DrawView extends View {
                     canvas.drawCircle(center, center1, radius, sPaint);
                     canvas.drawCircle(center, center1, radius - 8, redPaint);
                     canvas.drawBitmap(busBitmap, 10, center1 - 30, null);
+                    if (Utils.nearStation.size() > 0) {
+                        if (Utils.nearStation.get(0).replace("(公交站)", "").equals(Utils.busStations.get(i - 1).toString())) {
+                            canvas.drawBitmap(positionBitmap, center + radius + 10, center1 - 30, null);
+                            Utils.aboardStation = (i + 1) / 2;
+                        }
 
+                    }
                     canvas.drawLine(center + radius, center1 + 27, center * 4, center1 + radius - 3, sPaint2);
                     canvas.drawText(Utils.busStations.get(i - 1).toString(), center * 4 + 4, center1 + radius - 5, fPaint);
                 } else {
