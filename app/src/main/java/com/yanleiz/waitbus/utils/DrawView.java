@@ -112,17 +112,6 @@ public class DrawView extends View {
         }
         canvas.drawLine(0, texty, getWidth(), texty, blackPaint);
 
-        //int innerCircle = dip2px(getContext(), 20); //设置内圆半径
-        //int ringWidth = dip2px(getContext(), 5); //设置圆环宽度
-
-        //绘制内圆
-        //mPaint.setARGB(155, 167, 190, 206);
-        //mPaint.setStrokeWidth(2);
-        //canvas.drawCircle(center,center, innerCircle, mPaint);
-
-        //绘制圆环
-        //mPaint.setARGB(255, 212 ,225, 233);
-        // mPaint.setStrokeWidth(ringWidth);
         int center1 = center;
         for (int i = 1; i <= Utils.busStations.size(); i++) {
 //        canvas.drawCircle(0,0, 30, sPaint);
